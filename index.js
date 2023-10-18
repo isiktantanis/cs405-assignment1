@@ -1,5 +1,5 @@
 const config = {
-  yAxisHeight: 51,
+  yAxisHeight: 50,
   plotWidth: 500,
   barHeight: 40,
   barWidth: 7,
@@ -13,6 +13,7 @@ async function getData() {
   const text = await file.text();
   const rawData = Papa.parse(text).data;
   let maxValue = -1;
+
   for (let i = 6; i < 85; ) {
     const year = parseInt(rawData[i][0].substring(0, 4));
     const value = parseInt(rawData[i][2].replace(/ /g, ""));
@@ -22,14 +23,13 @@ async function getData() {
     }
     i += 4;
   }
-  return { data, maxValue };
+
+  return { data: new Map([...data.entries()].sort()), maxValue };
 }
 
 async function main() {
-  const { data, maxValue } = await getData();
-  const xEntryWidth = config.plotWidth / data.size;
   const graph = document.getElementById("graph");
-
+  const { data, maxValue } = await getData();
   const numSteps = Math.ceil(maxValue / config.step);
   const stepHeight = config.yAxisHeight / numSteps;
   const yAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -37,7 +37,7 @@ async function main() {
   yAxis.setAttribute("x1", 14);
   yAxis.setAttribute("y1", 5);
   yAxis.setAttribute("x2", 14);
-  yAxis.setAttribute("y2", 5 + config.yAxisHeight);
+  yAxis.setAttribute("y2", 15 + config.barHeight);
   graph.appendChild(yAxis);
 
   for (let i = 0; i < numSteps; i++) {
@@ -52,7 +52,7 @@ async function main() {
     );
     yAxisText.setAttribute("text-anchor", "start");
     yAxisText.setAttribute("x", 0);
-    yAxisText.setAttribute("y", 6 + stepHeight * i);
+    yAxisText.setAttribute("y", 7 + stepHeight * i);
     yAxisText.setAttribute("fill", "blue");
     yAxisText.setAttribute("font-size", "4");
     yAxisText.setAttribute("alignment-baseline", "middle");
@@ -61,9 +61,9 @@ async function main() {
 
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("x1", 8);
-    line.setAttribute("y1", 6 + stepHeight * i);
+    line.setAttribute("y1", 7 + stepHeight * i);
     line.setAttribute("x2", 11);
-    line.setAttribute("y2", 6 + stepHeight * i);
+    line.setAttribute("y2", 7 + stepHeight * i);
     line.setAttribute("style", "stroke:white;stroke-width:1");
     axisIndicatorGroup.appendChild(line);
 
